@@ -5,7 +5,7 @@
 
 <template>
     <footer>
-        Created by <span>Professor Pickle</span> &copy; 2025
+        {{ year }}
     </footer>
 </template>
 
