@@ -3,9 +3,39 @@ import {ref, onMounted} from 'vue'
 const quoteData = ref(null)
 const isLoading = ref(true)
 
+const isModalOpen = ref(false)
+const savedQuotesList = ref([])
+
+const saveQuotes = () => {
+    if (!quoteData.value) return
+
+    const saved = {
+        text: quoteData.value.quote,
+        author: quoteData.value.author
+    }
+
+    let savedQuotes = JSON.parse(localStorage.getItem('savedQuotes')) || []
+    savedQuotes.push(saved)
+    localStorage.setItem('savedQuotes', JSON.stringify(savedQuotes))
+
+    savedQuotesList.value = savedQuotes
+}
+
+const openSavedQuotes = () => {
+    savedQuotesList.value = JSON.parse(localStorage.getItem('savedQuotes')) || []
+    isModalOpen.value = true
+}
+
+defineExpose({ openSavedQuotes })
+
+const closeModal = () => {
+    isModalOpen.value = false
+}
+
 const api_url = "https://dummyjson.com/quotes/random"
 
 const getapi = () => {
+    isLoading.value = true
     fetch(api_url)
         .then(response => response.json())
         .then(data => {
@@ -36,63 +66,79 @@ onMounted(() => {
                 <p class="author">- {{ quoteData.author }}</p>
             </div>
 
-            <button @click="getapi" :disabled="isLoading" class="refresh-btn">
-                Another!
-            </button>
+            <button @click="saveQuotes" class="save-btn"> Save </button>
         </div>
     </main>
+
+    <div class="button-container">
+        <button @click="getapi" :disabled="isLoading" class="refresh-btn">
+            Another!
+        </button>
+    </div>
+
+    <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
+        <div class="modal-window">
+            <h2>Saved Quotes</h2>
+            <p v-if="savedQuotesList.length === 0">No saved quotes yet.</p>
+
+            <div v-else class="quotes-scroll-card">
+                <div v-for="(quote, index) in savedQuotesList" :key="index" class="saved-quote-card">
+                    "{{ quote.text }}" - {{ quote.author }}
+                </div>
+            </div>
+            <button @click="isModalOpen = false" class="close-btn">Close</button>
+        </div>
+    </div>
 </template>
 
 <style scoped>
 .main-content {
-    font-family: system-ui, sans-serif;
-    background: #CCD6D9;
+    font-family: 'Times', sans-serif;
+    background:#d5e0e4f6;
     max-width:90%;
-    border-radius:0 15px 0 15px;
-    padding:35px;
+    border-radius:6px 6px 6px 6px;
+    padding:30px;
     display:flex;
     flex-direction:column;
+    gap:10px;
+}
+
+.card {
+    display:flex;
     align-items:center;
-    gap:10px;
+    justify-content:center;
 }
 
-main section {
-    display: flex;
-    width:100%;
-    flex-direction:column;
-    gap:10px;
-    margin-bottom:25px;
-}
-
-main p {
+.text {
     font-weight:bold;
     font-style: italic;
     font-size:2rem;
     text-align:left;
+    margin-bottom:10px;
 }
 
-main p::before {
+.text::before {
     content: '"'
 }
 
-main p::after {
+.text::after {
     content: '"'
 }
 
-main span {
+.author {
+    font-size:1.5rem;
+    color:#26383f;
     align-self:end;
-    color: #406473;
 }
 
-main span::before {
-     content: "- "
+.button-container {
+    display:flex;
+    gap:15px;
+    margin-top:5px;
 }
 
-a {
-    text-decoration: none;
-}
 
-main button {
+.refresh-btn {
     background:#406473;
     color: white;
     padding:10px;
@@ -104,7 +150,77 @@ main button {
     cursor:pointer;
     transition: transform 0.2s;
 }
-main button:hover{
+
+.save-btn{
+    background:#26383f;
+    color: white;
+    padding:10px;
+    border: 0;
+    font-size:1rem;
+    border-radius:0 5px 0 5px;
+    font-weight:bold;
+    margin-top:20px;
+    cursor:pointer;
+    transition: transform 0.2s;
+    align-self: flex-end;
+}
+
+.refresh-btn:hover, .save-btn:hover{
     transform: scale(1.05);
 }   
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+}
+
+.modal-window {
+    background: rgb(188, 221, 252);
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.modal-window h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+.quotes-scroll-card {
+    overflow-y: auto;
+    margin: 15px 0;
+    padding-right: 10px;
+    flex-grow: 1;
+}
+
+.saved-quote-card {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+}
+
+.close-btn {
+    background: #406473;
+    color: white;
+    padding: 10px;
+    border: 0;
+    font-size: 1rem;
+    border-radius: 0 5px 0 5px;
+    font-weight: bold;
+    align-self: flex-end;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
 </style>

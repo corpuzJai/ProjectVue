@@ -5,7 +5,7 @@
 }
 
 body{
-    background-color:#406473;
+    background-color:#628ea1;
     font-family: sans-serif;
 }
 
@@ -13,6 +13,43 @@ body{
     display:flex;
     flex-direction:column;
     align-items:center;
+    justify-content:center;
     padding:25px;
+    min-height:70vh;
 }
- 
+
+.app-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.navbar {
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 30px;
+    background-color:#0A192F;
+    backdrop-filter:blur(8px);
+    box-sizing:border-box;
+    color:#CCD6D9;
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:1000;
+}
+
+.main-content {
+    font-family: 'Times', sans-serif;
+    background:#d5e0e4f6;
+    max-width:90%;
+    border-radius:6px 6px 6px 6px;
+    padding:30px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap: 20px;
+}
