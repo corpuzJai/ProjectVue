@@ -12,7 +12,11 @@
 
 <style scoped>
     header {
+        display: flex;  
+        font-family:'Georgia', serif;
         color:#CCD6D9;
         margin-bottom:25px;
+        justify-content: center;
+        align-items: center;
     }
 </style>
