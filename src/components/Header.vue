@@ -18,5 +18,6 @@
         margin-bottom:25px;
         justify-content: center;
         align-items: center;
+        font-size: 30px;
     }
 </style>
