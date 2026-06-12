@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted} from 'vue'
+import {ref, computed, onMounted} from 'vue'
 const quoteData = ref(null)
 const isLoading = ref(true)
 
@@ -10,11 +10,17 @@ const saveQuotes = () => {
     if (!quoteData.value) return
 
     const saved = {
+        id: Date.now(),
         text: quoteData.value.quote,
         author: quoteData.value.author
     }
 
     let savedQuotes = JSON.parse(localStorage.getItem('savedQuotes')) || []
+    const isAlreadySaved = savedQuotes.some(q => q.text === saved.text)
+    if (isAlreadySaved) {
+        alert('This quote is already saved!')
+        return
+    }
     savedQuotes.push(saved)
     localStorage.setItem('savedQuotes', JSON.stringify(savedQuotes))
 
@@ -27,6 +33,13 @@ const openSavedQuotes = () => {
 }
 
 defineExpose({ openSavedQuotes })
+
+const deleteQuote = (index, quote) => {
+    const confirmDelete = confirm(`Remove this quote from Saved Quotes?\n`)
+    if (!confirmDelete) return
+    savedQuotesList.value.splice(index, 1)
+    localStorage.setItem('savedQuotes', JSON.stringify(savedQuotesList.value))
+}
 
 const closeModal = () => {
     isModalOpen.value = false
@@ -66,7 +79,7 @@ onMounted(() => {
                 <p class="author">- {{ quoteData.author }}</p>
             </div>
 
-            <button @click="saveQuotes" class="save-btn"> Save </button>
+            <button @click="saveQuotes" class="save-btn"> Favorite </button>
         </div>
     </main>
 
@@ -83,7 +96,12 @@ onMounted(() => {
 
             <div v-else class="quotes-scroll-card">
                 <div v-for="(quote, index) in savedQuotesList" :key="index" class="saved-quote-card">
-                    "{{ quote.text }}" - {{ quote.author }}
+                    <div class="quote-wrapper">
+                        "{{ quote.text }}" - {{ quote.author }}
+                    </div>
+                    <button @click="deleteQuote(index, quote.text)" class="row-delete-btn" title="Delete Quote">
+                       🗑️ 
+                    </button>
                 </div>
             </div>
             <button @click="isModalOpen = false" class="close-btn">Close</button>
@@ -208,6 +226,25 @@ onMounted(() => {
 .saved-quote-card {
     border-bottom: 1px solid #ccc;
     padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.quote-wrapper {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.row-delete-btn {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .close-btn {
