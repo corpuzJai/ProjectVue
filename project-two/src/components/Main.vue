@@ -54,7 +54,7 @@
 
 <template>
     <div class="app-container">
-        <!--<h1>Product Catalog</h1>-->
+        <h1>Tindahan</h1>
 
         <div class="filter-container">
             <label for="category-select" class="filter-label">Filter</label>
@@ -98,7 +98,7 @@
 <style scoped>
     .app-container {
         width: 100%;
-        max-width: 1280px;
+        max-width: 1024px;
         margin: 0 auto;
         padding: 20px;
         box-sizing: border-box;
@@ -154,7 +154,7 @@
 
     .products-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 20px;
         margin-top: 20px;
     }
@@ -172,8 +172,8 @@
     }
 
     .products-card img {
-        width: 250px;
-        height: 250px;
+        width: 240px;
+        height: 240px;
         object-fit: contain;
         background-color: #f9f9f9;
         border-radius: 4px;
