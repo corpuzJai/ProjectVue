@@ -6,10 +6,6 @@ import { compileStyle } from 'vue/compiler-sfc'
     const isLoading = ref(true)
     const errorMessage = ref (null)
     const filterCategory = ref('')
-
-    const isModalOpen = ref(false)
-    const selectedProduct = ref(null)
-    const quantityInput = ref(1)    // default
     
     const USD_TO_PHP_RATE = 60.771
     
@@ -35,46 +31,7 @@ import { compileStyle } from 'vue/compiler-sfc'
                 isLoading.value = false
             })
     }
-
-    const openQuantityModal = (product) => {
-        selectedProduct.value = product
-        quantityInput.value = 1
-        isModalOpen.value = true
-    }
-
-    const closeModal = () => {
-        isModalOpen.value = false
-        selectedProduct.value = null
-    }
-
-    const submitToCart = () => {
-        if (quantityInput.value < 1) {
-            alert('Teh 0 yung quantity!')
-            return
-        }
-
-        const cartPay = {
-            product: selectedProduct.value,
-            quantity: parseInt(quantityInput.value)
-        }
-
-        emit('onAddItem', cartPay)
-
-        closeModal()
-    }
-
-    const emit = defineEmits(['onAddItem'])
-
-    const decreaseQty = () => {
-        if (quantityInput.value > 1) {
-            quantityInput.value--
-        }
-    }
-
-    const increaseQty = () => {
-        quantityInput.value++
-    }
-
+    
     const uniqueCategories = computed(() => {
         const categories = productData.value.map(product => product.category)
         return Array.from(new Set(categories))
@@ -89,7 +46,6 @@ import { compileStyle } from 'vue/compiler-sfc'
             product.category === filterCategory.value
         )
     })
-
 
     onMounted(() => {
         getapi()
