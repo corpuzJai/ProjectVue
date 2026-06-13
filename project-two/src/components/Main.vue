@@ -1,9 +1,11 @@
 <script setup>
-    import {ref, onMounted} from 'vue'
+    import {ref, computed, onMounted} from 'vue'
 
     const productData = ref([])
     const isLoading = ref(true)
     const errorMessage = ref (null)
+
+    const filterCategory = ref('')
 
     const api_url ="https://dummyjson.com/products"
 
@@ -28,6 +30,21 @@
             })
     }
 
+    const uniqueCategories = computed(() => {
+        const categories = productData.value.map(product => product.category)
+        return Array.from(new Set(categories))
+    })
+
+    const filteredProducts = computed(() => {
+        if(!filterCategory.value) {
+            return productData.value    // If "All Categories", show everything
+        }
+
+        return productData.value.filter(product =>
+            product.category === filterCategory.value
+        )
+    })
+
 
     onMounted(() => {
         getapi()
@@ -37,7 +54,25 @@
 
 <template>
     <div class="app-container">
-        <h1>Product Catalog</h1>
+        <!--<h1>Product Catalog</h1>-->
+
+        <div class="filter-container">
+            <label for="category-select" class="filter-label">Filter</label>
+            <select
+                id="category-select"
+                v-model="filterCategory"
+                class="category-dropdown"
+            >
+                <option value="">All Categories</option>
+                <option
+                    v-for="category in uniqueCategories"
+                    :key="category"
+                    :value="category"
+                >
+                    {{ category }}
+                </option>
+            </select>
+        </div>
 
         <div v-if="isLoading" class="loading-state">
             Loading products...
@@ -48,7 +83,7 @@
         </div>
 
         <div v-else class="products-grid">
-            <div v-for="product in productData" :key="product.id" class="products-card">
+            <div v-for="product in filteredProducts" :key="product.id" class="products-card">
                 <img :src="product.thumbnail" :alt="product.title" />
                 <h3>{{ product.title }}</h3>
                 <p class="category">{{ product.category }}</p>
@@ -62,10 +97,45 @@
 
 <style scoped>
     .app-container {
-        max-width: 1200px;
+        width: 100%;
+        max-width: 1280px;
         margin: 0 auto;
         padding: 20px;
+        box-sizing: border-box;
         font-family:Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    .filter-container {
+        display: flex;
+        align-items: left;
+        align-self: center;
+        gap: 8px;
+        margin-bottom: 30px;
+        width: 100%
+    }
+
+    .filter-label {
+        font-size: 0.9rem;
+        color: #555;
+        font-weight: bold;
+        align-self: center;
+    }
+
+    .category-dropdown {
+        width: 100%;
+        max-width: 320px;
+        padding: 10px 14px;
+        font-size: 1rem;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+        background-color: white;
+        cursor: pointer;
+        text-transform: capitalize;
+    }
+
+    .category-dropdown:focus {
+        border-color: #2c3e50;
     }
 
     .loading {
@@ -94,15 +164,20 @@
         border-radius: 8px;
         padding: 15px;
         text-align: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.5)
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        background-color: white;
     }
 
-    .product-card img {
-        width: 80%;
-        height: 150px;
+    .products-card img {
+        width: 250px;
+        height: 250px;
         object-fit: contain;
         background-color: #f9f9f9;
         border-radius: 4px;
+        border-color: antiquewhite;
     }
 
     .category {

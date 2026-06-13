@@ -17,6 +17,7 @@
     .header-container {
         max-width: 90%;
         text-align: left;
+        margin-top: 1.2rem;
     }
 
     .title {
