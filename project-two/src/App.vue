@@ -8,10 +8,6 @@
   const changeTab = (tabName) => {
     currentTab.value = tabName
   }
-
-  
-
-  //const mainComponent = ref(null)
   
 </script>
 

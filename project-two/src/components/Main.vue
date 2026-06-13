@@ -1,14 +1,18 @@
 <script setup>
     import {ref, computed, onMounted} from 'vue'
+import { compileStyle } from 'vue/compiler-sfc'
 
     const productData = ref([])
     const isLoading = ref(true)
     const errorMessage = ref (null)
-
     const filterCategory = ref('')
 
+    const isModalOpen = ref(false)
+    const selectedProduct = ref(null)
+    const quantityInput = ref(1)    // default
+    
     const USD_TO_PHP_RATE = 60.771
-
+    
     const api_url ="https://dummyjson.com/products"
 
     const getapi = () => {
@@ -30,6 +34,45 @@
                 errorMessage.value = error.message
                 isLoading.value = false
             })
+    }
+
+    const openQuantityModal = (product) => {
+        selectedProduct.value = product
+        quantityInput.value = 1
+        isModalOpen.value = true
+    }
+
+    const closeModal = () => {
+        isModalOpen.value = false
+        selectedProduct.value = null
+    }
+
+    const submitToCart = () => {
+        if (quantityInput.value < 1) {
+            alert('Teh 0 yung quantity!')
+            return
+        }
+
+        const cartPay = {
+            product: selectedProduct.value,
+            quantity: parseInt(quantityInput.value)
+        }
+
+        emit('onAddItem', cartPay)
+
+        closeModal()
+    }
+
+    const emit = defineEmits(['onAddItem'])
+
+    const decreaseQty = () => {
+        if (quantityInput.value > 1) {
+            quantityInput.value--
+        }
+    }
+
+    const increaseQty = () => {
+        quantityInput.value++
     }
 
     const uniqueCategories = computed(() => {
@@ -56,7 +99,7 @@
 
 <template>
     <div class="app-container">
-        <h1>Tindahan</h1>
+        <h1 class="title">Tindahan</h1>
 
         <div class="filter-container">
             <label for="category-select" class="filter-label">Filter</label>
@@ -67,10 +110,7 @@
             >
                 <option value="">All Categories</option>
                 <option
-                    v-for="category in uniqueCategories"
-                    :key="category"
-                    :value="category"
-                >
+                    v-for="category in uniqueCategories" :key="category" :value="category">
                     {{ category }}
                 </option>
             </select>
@@ -85,7 +125,7 @@
         </div>
 
         <div v-else class="products-grid">
-            <div v-for="(product, index) in filteredProducts" :key="product.id" class="products-card" :class="{ 'expand-up': index >= 8 }">
+            <div v-for="(product, index) in filteredProducts" :key="product.id" class="products-card">
                 <img :src="product.thumbnail" :alt="product.title" />
                 <h3>{{ product.title }}</h3>
                 <p class="category">{{ product.category }}</p>
@@ -100,6 +140,10 @@
                         </span>
                     </p>
                 </div>
+
+                <button  @click.prevent.stop="openQuantityModal(product)" class="buy-action-btn">
+                    🛒  
+                </button>
             </div>
         </div>
     </div>
@@ -114,7 +158,11 @@
         margin: 0 auto;
         padding: 20px;
         box-sizing: border-box;
-        font-family:Verdana, Geneva, Tahoma, sans-serif;
+        font-family:Verdana, sans-serif;
+    }
+
+    .title {
+        font-family: Verdana;
     }
 
     .filter-container {
@@ -169,7 +217,7 @@
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 20px;
         margin-top: 20px;
-        align-items: start;
+        overflow: visible !important;
     }
 
     .products-card {
@@ -184,12 +232,11 @@
         align-items: center;
         background-color: white;
         box-sizing: border-box;
-        transition: border-color 0.25s ease-in-out;
+        transition: border-color 0.25s ease-in;
         z-index: 1;
     }
 
     .products-card:hover {
-        transform: translateY(-4px);
         border-color: #38bdf8;
         background-color: #f8fafc;
         z-index: 10;
@@ -223,46 +270,26 @@
 
     .extra-details-hover {
         position: absolute;
-        top: 100%;
-        left: -1px;
-        right: -1px;
+        bottom: -1px;
+        left: 100%;
+
+        width: 240px;
+        background-color: #f0efeb;
+        border: 1px solid #38bdf8;
+        padding: 15px;
+        margin-left: 20px;
+        box-sizing: border-box;
         opacity: 0;
         visibility: hidden;
-        text-align: left;
         font-size: 0.85rem;
         color: #334155;
         line-height: 1.4;
-        box-sizing: border-box;
         transition: all 0.15s ease-in-out, visibility 0.15s ease-in-out;
-        background-color: antiquewhite;
-        border: 1px solid #38bdf8;
     }
 
-    .products-card:not(expand-up):hover .extra-details-hover {
-        max-height: 250px;
-        opacity: 1;
-        margin-top: 15px;
-        padding-top: 15px;
-        border-top: 1px dashed #cbd5e1;
-        visibility: visible;
-    }
-
-    .products-card.expand-up:hover .extra-details-hover {
-        top:auto;
-        bottom: 100%;
+    .products-card:hover .extra-details-hover {
         opacity: 1;
         visibility: visible;
-
-        border-top: 1px solid #38bdf8;
-        border-bottom: none;       
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    .products-card.expand-up:hover {
-        transform: translateY(4px);
     }
 
     .extra-details-hover p {
@@ -270,6 +297,18 @@
         text-align: center;
         color: #334155;
         line-height: 1.4;
+    }
+
+    .buy-action-btn {
+        width: 100%;
+        background-color: #dfe7fd;
+        border: none;
+        padding: 10px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background-color 0.2s;
     }
 
     .status-ok {
