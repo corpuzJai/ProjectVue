@@ -54,7 +54,8 @@
 
   .content-body {
     flex-grow: 1;
-    min-width: 0;
+    min-width: 1024px;
+    max-width: 1024px;
     width: 1024px;
     padding: 20px;
     box-sizing: border-box;

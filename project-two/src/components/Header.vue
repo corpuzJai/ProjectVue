@@ -66,9 +66,9 @@
 
     .store-branding {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 20px;
         border-bottom: 1px solid #334155;
-        padding-bottom: 20px;
+        padding-bottom: 10px;
     }
 
     .store-branding h2  {
