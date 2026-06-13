@@ -10,6 +10,6 @@ can save quotes.
 by the local sari-sari stores found in the Philippines.
 
 ## To Run
-git clone git@github.com:corpuzJai/ProjectVue.git
-npm install
+git clone git@github.com:corpuzJai/ProjectVue.git \
+npm install \
 npm run dev
